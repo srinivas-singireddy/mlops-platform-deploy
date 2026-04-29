@@ -36,11 +36,11 @@ spec:
   ignoreDifferences:
     - group: external-secrets.io
       kind: ExternalSecret
-      jsonPointers:
-        - /status
       jqPathExpressions:
-        - .metadata.annotations."reconcile.external-secrets.io/data-hash"
-        - .metadata.annotations."reconcile.external-secrets.io/managed"
+        - .spec.data[].remoteRef.conversionStrategy
+        - .spec.data[].remoteRef.decodingStrategy
+        - .spec.data[].remoteRef.metadataPolicy
+        - .spec.target.deletionPolicy
 
   syncPolicy:
     automated:
@@ -49,3 +49,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true   # Required for the large CRDs Prometheus uses
+      - RespectIgnoreDifferences=true
