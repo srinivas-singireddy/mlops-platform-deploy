@@ -21,6 +21,13 @@ spec:
       targetRevision: main
       ref: values
 
+    # Source 3: NEW — additional manifests (the ExternalSecret) for this workload
+    - repoURL: https://github.com/srinivas-singireddy/mlops-platform-deploy.git
+      targetRevision: main
+      path: apps/kube-prometheus-stack
+      directory:
+        include: 'external-secret.yaml'      
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
