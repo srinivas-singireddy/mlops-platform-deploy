@@ -34,9 +34,14 @@ prometheus:
 grafana:
   enabled: true
 
-  # We'll set the admin password via External Secrets (Phase 4 stretch)
-  # For now, the chart auto-generates one.
-  adminPassword: ""
+  # Admin credentials are sourced from a Kubernetes Secret synced from
+  # AWS Secrets Manager via External Secrets Operator. See ADR 0007.
+  # The Secret 'grafana-admin-credentials' is provisioned by the
+  # ExternalSecret manifest in this same folder (external-secret.yaml).
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
 
   persistence:
     enabled: true
