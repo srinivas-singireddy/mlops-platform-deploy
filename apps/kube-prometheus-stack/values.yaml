@@ -1,0 +1,97 @@
+# kube-prometheus-stack values
+# Chart docs: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+# ─────────────────────────────────────────────────────────────────────
+# Prometheus
+# ─────────────────────────────────────────────────────────────────────
+prometheus:
+  prometheusSpec:
+    # Persist Prometheus data to EBS
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3      # gp3 is the default EBS storage class on EKS
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi          # Lab-friendly size
+
+    # Lab-friendly resource limits
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+
+    # Retention — short for the lab
+    retention: 7d
+    retentionSize: "8GiB"
+
+# ─────────────────────────────────────────────────────────────────────
+# Grafana
+# ─────────────────────────────────────────────────────────────────────
+grafana:
+  enabled: true
+
+  # We'll set the admin password via External Secrets (Phase 4 stretch)
+  # For now, the chart auto-generates one.
+  adminPassword: ""
+
+  persistence:
+    enabled: true
+    storageClassName: gp3
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+  # Default datasources — Prometheus is auto-configured by the chart
+  # We'll add Loki as a datasource in a separate sidecar config (Step 5)
+
+  # Lab-friendly: disable the load test plugin et al
+  testFramework:
+    enabled: false
+
+  # Default Grafana dashboards (kube-prometheus-stack ships ~30 of them)
+  defaultDashboardsEnabled: true
+
+# ─────────────────────────────────────────────────────────────────────
+# Alertmanager
+# ─────────────────────────────────────────────────────────────────────
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
+# ─────────────────────────────────────────────────────────────────────
+# Cluster-level metrics — already covered by EKS, but the stack assumes
+# it scrapes etcd, scheduler, controller-manager directly. On EKS those
+# are managed and not scrape-able, so disable to avoid alert noise.
+# ─────────────────────────────────────────────────────────────────────
+kubeEtcd:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeProxy:
+  enabled: false   # Optional — kube-proxy on EKS is fine but not on the default scrape port
