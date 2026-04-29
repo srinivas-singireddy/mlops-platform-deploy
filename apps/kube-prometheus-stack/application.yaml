@@ -32,6 +32,16 @@ spec:
     server: https://kubernetes.default.svc
     namespace: monitoring
 
+  # NEW BLOCK — tells ArgoCD to ignore certain field differences
+  ignoreDifferences:
+    - group: external-secrets.io
+      kind: ExternalSecret
+      jsonPointers:
+        - /status
+      jqPathExpressions:
+        - .metadata.annotations."reconcile.external-secrets.io/data-hash"
+        - .metadata.annotations."reconcile.external-secrets.io/managed"
+
   syncPolicy:
     automated:
       prune: true
