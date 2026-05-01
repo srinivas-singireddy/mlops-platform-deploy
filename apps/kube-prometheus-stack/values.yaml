@@ -65,6 +65,24 @@ grafana:
   # Default Grafana dashboards (kube-prometheus-stack ships ~30 of them)
   defaultDashboardsEnabled: true
 
+    # Sidecars are how Grafana auto-discovers extra datasources/dashboards
+  sidecar:
+    datasources:
+      enabled: true
+      label: grafana_datasource
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+
+  # Add Loki as an additional datasource via the chart's
+  # additionalDataSources mechanism (alternative to sidecar approach)
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki.monitoring.svc.cluster.local:3100
+      access: proxy
+      isDefault: false
+
 # ─────────────────────────────────────────────────────────────────────
 # Alertmanager
 # ─────────────────────────────────────────────────────────────────────
