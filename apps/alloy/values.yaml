@@ -1,0 +1,71 @@
+# Grafana Alloy — replaces Promtail (EOL March 2, 2026)
+# DaemonSet that scrapes pod logs from /var/log/pods and ships to Loki.
+
+alloy:
+  configMap:
+    create: true
+    # The Alloy config below is roughly equivalent to a basic Promtail
+    # Kubernetes pod-log scrape pipeline.
+    # Component-based syntax: each block is a named component, wired by reference.
+    content: |-
+      // Scrape pods discovered via the Kubernetes API
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      // Relabel to extract namespace, pod, container — the labels Loki users expect
+      discovery.relabel "pods" {
+        targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label  = "app"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label  = "node"
+        }
+      }
+
+      // Source: read the actual log files from /var/log/pods/
+      loki.source.kubernetes "pods" {
+        targets    = discovery.relabel.pods.output
+        forward_to = [loki.write.default.receiver]
+      }
+
+      // Sink: ship the log entries to our in-cluster Loki
+      loki.write "default" {
+        endpoint {
+          url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+# Run as DaemonSet — one pod per node
+controller:
+  type: daemonset
+
+# Mount host's /var/log/pods so Alloy can read pod logs
+# (this is what loki.source.kubernetes needs)
