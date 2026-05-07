@@ -29,9 +29,8 @@ spec:
   - group: apps
     kind: StatefulSet
     name: loki
-    jsonPointers:
-      - /spec/volumeClaimTemplates/0/metadata/creationTimestamp
-  
+    jqPathExpressions:
+      - .spec.volumeClaimTemplates[].metadata.creationTimestamp
   
   
   syncPolicy:
