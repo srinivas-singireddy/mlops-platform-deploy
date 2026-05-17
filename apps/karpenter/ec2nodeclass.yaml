@@ -37,18 +37,6 @@ spec:
     httpTokens: required          # keep IMDSv2 enforced for security
 
 
-  # AL2023 node initialisation config — same format as your existing
-  # cloudinit_pre_nodeadm on the managed node group.
-  # maxPods must match your managed nodes (110) so pod density is consistent.
-  userData: |
-    ---
-    apiVersion: node.k8s.aws/v1alpha1
-    kind: NodeConfig
-    spec:
-      kubelet:
-        config:
-          maxPods: 110
-
   # Tags applied to every EC2 instance Karpenter launches.
   # Visible in AWS Console and Cost Explorer.
   tags:
