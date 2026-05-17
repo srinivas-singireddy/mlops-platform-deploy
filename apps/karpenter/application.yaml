@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: public.ecr.aws/karpenter
     chart: karpenter
-    targetRevision: "1.3.3"
+    targetRevision: "0.37.0"
     helm:
       values: |
         serviceAccount:

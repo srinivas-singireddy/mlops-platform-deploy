@@ -1,14 +1,14 @@
-apiVersion: karpenter.k8s.aws/v1
+apiVersion: karpenter.k8s.aws/v1beta1
 kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  # AL2023 is the modern Amazon Linux for EKS.
-  # "alias: al2023@latest" tells Karpenter to query SSM Parameter Store
-  # at provisioning time to resolve the current AMI ID for your K8s version.
-  # You never hardcode an AMI ID — it changes with every security patch.
-  amiSelectorTerms:
-    - alias: al2023@latest
+
+  # amiFamily replaces the alias selector in v1beta1.
+  # AL2023 tells Karpenter to use Amazon Linux 2023 and automatically
+  # find the correct AMI via SSM — same behaviour as alias: al2023@latest
+  # but using the v1beta1 API.
+  amiFamily: AL2023
 
   # The IAM role name (not ARN) that Karpenter attaches to every node it launches.
   # Karpenter resolves the instance profile from this role name automatically.
