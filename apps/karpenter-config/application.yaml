@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/srinivas-singireddy/mlops-platform-deploy
     targetRevision: HEAD
-    path: apps/karpenter-config
+    path: apps/karpenter
     directory:
       include: "{ec2nodeclass,nodepool}.yaml"
   destination:
