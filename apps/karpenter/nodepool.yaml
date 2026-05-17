@@ -2,7 +2,6 @@ apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
-  # remove: namespace: karpenter
 spec:
   template:
     metadata:
@@ -65,7 +64,7 @@ spec:
   disruption:
     # WhenUnderutilized: Karpenter actively bin-packs pods and deletes
     # underutilised nodes. This is what saves money automatically.
-    consolidationPolicy: WhenUnderutilized
+    consolidationPolicy: WhenEmptyOrUnderutilized
 
     # 30s is aggressive — good for a lab (saves money fast).
     # Production would use 5m to avoid disruption during traffic spikes.
