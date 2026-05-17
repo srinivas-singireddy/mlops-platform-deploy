@@ -1,0 +1,48 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: default
+  namespace: karpenter
+spec:
+  # AL2023 is the modern Amazon Linux for EKS.
+  # "alias: al2023@latest" tells Karpenter to query SSM Parameter Store
+  # at provisioning time to resolve the current AMI ID for your K8s version.
+  # You never hardcode an AMI ID — it changes with every security patch.
+  amiSelectorTerms:
+    - alias: al2023@latest
+
+  # The IAM role name (not ARN) that Karpenter attaches to every node it launches.
+  # Karpenter resolves the instance profile from this role name automatically.
+  # Matches aws_iam_role.karpenter_node in karpenter-iam.tf.
+  role: "karpenter-node-mlops-lab"
+
+  # Karpenter finds subnets by querying EC2 for subnets tagged with this key=value.
+  # Matches the tag you added to modules/vpc/main.tf.
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "mlops-lab"
+
+  # Karpenter finds security groups by this tag.
+  # Matches node_security_group_tags in terraform/cluster/main.tf.
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "mlops-lab"
+
+  # AL2023 node initialisation config — same format as your existing
+  # cloudinit_pre_nodeadm on the managed node group.
+  # maxPods must match your managed nodes (110) so pod density is consistent.
+  userData: |
+    ---
+    apiVersion: node.k8s.aws/v1alpha1
+    kind: NodeConfig
+    spec:
+      kubelet:
+        config:
+          maxPods: 110
+
+  # Tags applied to every EC2 instance Karpenter launches.
+  # Visible in AWS Console and Cost Explorer.
+  tags:
+    Project: "mlops-platform"
+    ManagedBy: "karpenter"
+    KubernetesCluster: "mlops-lab"

@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter-config
+  namespace: argocd
+  annotations:
+    # Wave 0: runs AFTER Karpenter controller (wave -5) is Healthy.
+    # EC2NodeClass and NodePool CRDs are registered by the Karpenter Helm chart.
+    # If this runs before wave -5 completes, ArgoCD cannot validate the CRDs.
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/srinivas-singireddy/mlops-platform-deploy
+    targetRevision: HEAD
+    path: apps/karpenter
+    directory:
+      include: "{ec2nodeclass,nodepool}.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
