@@ -2,7 +2,6 @@ apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
   name: default
-  # remove: namespace: karpenter
 spec:
   # AL2023 is the modern Amazon Linux for EKS.
   # "alias: al2023@latest" tells Karpenter to query SSM Parameter Store
@@ -27,6 +26,16 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: "mlops-lab"
+
+# IMDSv2 with hop limit 2 — required for kubelet to reach IMDS
+  # during bootstrap. Hop limit 1 (the default) blocks containerized
+  # processes from accessing instance metadata.
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2    # was 1 — this was blocking kubelet bootstrap
+    httpTokens: required          # keep IMDSv2 enforced for security
+
 
   # AL2023 node initialisation config — same format as your existing
   # cloudinit_pre_nodeadm on the managed node group.
