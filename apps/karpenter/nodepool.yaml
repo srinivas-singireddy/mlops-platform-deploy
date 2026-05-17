@@ -2,7 +2,7 @@ apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
-  namespace: karpenter
+  # remove: namespace: karpenter
 spec:
   template:
     metadata:
