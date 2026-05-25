@@ -26,7 +26,7 @@ spec:
       targetRevision: main
       path: apps/kube-prometheus-stack
       directory:
-        include: 'external-secret.yaml'      
+        include: '{external-secret.yaml,alertmanager-secret.yaml}'     
 
   destination:
     server: https://kubernetes.default.svc
