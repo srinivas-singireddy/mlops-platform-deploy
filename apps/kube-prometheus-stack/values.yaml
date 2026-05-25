@@ -102,6 +102,85 @@ alertmanager:
         cpu: 10m
         memory: 64Mi
 
+    # Inject Slack webhook URLs from K8s Secret created by ESO
+    env:
+      - name: SLACK_WEBHOOK_ALERTS
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-credentials
+            key: slack-webhook-alerts
+      - name: SLACK_WEBHOOK_CRITICAL
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-credentials
+            key: slack-webhook-critical
+
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: "null"
+      group_by: ["alertname", "namespace", "severity"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+
+      routes:
+        # Suppress Watchdog — heartbeat alert, not a real incident
+        - matchers:
+            - alertname = "Watchdog"
+          receiver: "null"
+
+        # Critical → #mlops-critical
+        - matchers:
+            - severity = "critical"
+          receiver: "slack-critical"
+
+        # Warning → #mlops-alerts
+        - matchers:
+            - severity = "warning"
+          receiver: "slack-warnings"
+
+    receivers:
+      - name: "null"
+
+      - name: "slack-warnings"
+        slack_configs:
+          - api_url: "${SLACK_WEBHOOK_ALERTS}"
+            channel: "#mlops-alerts"
+            send_resolved: true
+            title: |-
+              [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}
+            text: |-
+              {{ range .Alerts }}
+              *Summary:* {{ .Annotations.summary }}
+              *Severity:* {{ .Labels.severity }}
+              *Namespace:* {{ .Labels.namespace }}
+              *Description:* {{ .Annotations.description }}
+              {{ end }}
+
+      - name: "slack-critical"
+        slack_configs:
+          - api_url: "${SLACK_WEBHOOK_CRITICAL}"
+            channel: "#mlops-critical"
+            send_resolved: true
+            title: |-
+              🚨 [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}
+            text: |-
+              {{ range .Alerts }}
+              *Summary:* {{ .Annotations.summary }}
+              *Severity:* {{ .Labels.severity }}
+              *Namespace:* {{ .Labels.namespace }}
+              *Description:* {{ .Annotations.description }}
+              {{ end }}
+
+    inhibit_rules:
+      - source_matchers:
+          - severity = "critical"
+        target_matchers:
+          - severity = "warning"
+        equal: ["alertname", "namespace"]
 # ─────────────────────────────────────────────────────────────────────
 # Cluster-level metrics — already covered by EKS, but the stack assumes
 # it scrapes etcd, scheduler, controller-manager directly. On EKS those
