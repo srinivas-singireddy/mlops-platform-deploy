@@ -19,7 +19,7 @@ spec:
 
         settings:
           clusterName: mlops-lab
-          clusterEndpoint: "https://E6E6DA3751AC120DC718F2271AFC712B.gr7.eu-central-1.eks.amazonaws.com"
+          clusterEndpoint: "https://7F90D957D3D114A5A9A6AA2A045BCF85.gr7.eu-central-1.eks.amazonaws.com"
           interruptionQueue: "karpenter-mlops-lab"
 
         affinity:
