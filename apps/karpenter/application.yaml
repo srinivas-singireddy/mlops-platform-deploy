@@ -33,7 +33,7 @@ spec:
               readOnly: true
         settings:
           clusterName: mlops-lab
-          clusterEndpoint: "https://7F90D957D3D114A5A9A6AA2A045BCF85.gr7.eu-central-1.eks.amazonaws.com"
+          clusterEndpoint: "https://D8D9E3A164EB134F678B9482247B885A.gr7.eu-central-1.eks.amazonaws.com"
           interruptionQueue: "karpenter-mlops-lab"
 
         affinity:
