@@ -10,15 +10,27 @@ spec:
   source:
     repoURL: public.ecr.aws/karpenter
     chart: karpenter
-    targetRevision: "1.12.1"
+    targetRevision: "1.8.6"
     helm:
       values: |
         serviceAccount:
           annotations:
             eks.amazonaws.com/role-arn: "arn:aws:iam::897175693580:role/karpenter-controller-mlops-lab"
-          # Explicitly enable token mounting — required for IRSA in 1.x
-          automountServiceAccountToken: true    
 
+        extraVolumes:
+          - name: aws-iam-token
+            projected:
+              defaultMode: 420
+              sources:
+                - serviceAccountToken:
+                    audience: sts.amazonaws.com
+                    expirationSeconds: 86400
+                    path: token
+        controller:
+          extraVolumeMounts:
+            - name: aws-iam-token
+              mountPath: /var/run/secrets/eks.amazonaws.com/serviceaccount
+              readOnly: true
         settings:
           clusterName: mlops-lab
           clusterEndpoint: "https://7F90D957D3D114A5A9A6AA2A045BCF85.gr7.eu-central-1.eks.amazonaws.com"
