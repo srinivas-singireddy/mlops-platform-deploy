@@ -16,6 +16,8 @@ spec:
         serviceAccount:
           annotations:
             eks.amazonaws.com/role-arn: "arn:aws:iam::897175693580:role/karpenter-controller-mlops-lab"
+          # Explicitly enable token mounting — required for IRSA in 1.x
+          automountServiceAccountToken: true    
 
         settings:
           clusterName: mlops-lab
