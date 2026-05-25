@@ -41,6 +41,13 @@ spec:
         - .spec.data[].remoteRef.decodingStrategy
         - .spec.data[].remoteRef.metadataPolicy
         - .spec.target.deletionPolicy
+    # NEW — ignore Alertmanager secret data so Taskfile patch does not trigger resync
+    - group: ""
+      kind: Secret
+      name: alertmanager-kube-prometheus-stack-alertmanager
+      namespace: monitoring
+      jqPathExpressions:
+        - .data["alertmanager.yaml"]
 
   syncPolicy:
     automated:
