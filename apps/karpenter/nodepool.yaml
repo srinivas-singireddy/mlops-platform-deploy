@@ -66,10 +66,6 @@ spec:
     # underutilised nodes. This is what saves money automatically.
     consolidationPolicy: WhenUnderutilized
 
-    # 30s is aggressive — good for a lab (saves money fast).
-    # Production would use 5m to avoid disruption during traffic spikes.
-    consolidateAfter: 30s
-
     # Never disrupt more than 1 node at a time.
     # Prevents consolidation from draining all nodes simultaneously.
     # This is the Lesson 20 guard — simultaneous drain breaks addon reconciliation.
