@@ -147,19 +147,3 @@ alertmanager:
         target_matchers:
           - severity = "warning"
         equal: ["alertname", "namespace"]
-# ─────────────────────────────────────────────────────────────────────
-# Cluster-level metrics — already covered by EKS, but the stack assumes
-# it scrapes etcd, scheduler, controller-manager directly. On EKS those
-# are managed and not scrape-able, so disable to avoid alert noise.
-# ─────────────────────────────────────────────────────────────────────
-kubeEtcd:
-  enabled: false
-
-kubeControllerManager:
-  enabled: false
-
-kubeScheduler:
-  enabled: false
-
-kubeProxy:
-  enabled: false   # Optional — kube-proxy on EKS is fine but not on the default scrape port
