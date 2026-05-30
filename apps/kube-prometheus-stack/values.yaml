@@ -128,14 +128,14 @@ alertmanager:
       - name: "null"
       - name: "slack-warnings"
         slack_configs:
-          - api_url: "SLACK_WEBHOOK_ALERTS_PLACEHOLDER"
+          - api_url: "https://hooks.slack.com/services/placeholder"
             channel: "#mlops-alerts"
             send_resolved: true
             title: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
             text: "{{ range .Alerts }}*Summary:* {{ .Annotations.summary }} *Severity:* {{ .Labels.severity }}{{ end }}"
       - name: "slack-critical"
         slack_configs:
-          - api_url: "SLACK_WEBHOOK_CRITICAL_PLACEHOLDER"
+          - api_url: "https://hooks.slack.com/services/placeholder"
             channel: "#mlops-critical"
             send_resolved: true
             title: "CRITICAL {{ .CommonLabels.alertname }}"
