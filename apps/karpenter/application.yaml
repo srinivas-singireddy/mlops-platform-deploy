@@ -15,7 +15,7 @@ spec:
       values: |
         serviceAccount:
           annotations:
-            eks.amazonaws.com/role-arn: "arn:aws:iam::897175693580:role/karpenter-controller-mlops-lab"
+            eks.amazonaws.com/role-arn: "arn:aws:iam::938822141378:role/karpenter-controller-mlops-lab"
 
         extraVolumes:
           - name: aws-iam-token
