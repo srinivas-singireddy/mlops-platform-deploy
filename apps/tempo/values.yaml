@@ -32,6 +32,7 @@ tempo:
       s3:
         bucket: mlops-tempo-traces-938822141378
         region: eu-central-1
+        endpoint: s3.eu-central-1.amazonaws.com
         # No access_key/secret_key — credentials come from IRSA
         # via the service account annotation above.
 
