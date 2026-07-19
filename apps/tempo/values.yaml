@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────────────
+# Tempo — single binary. Trace storage in S3 (bucket lives in the
+# bootstrap TF root, so it survives the daily cluster destroy).
+# ─────────────────────────────────────────────────────────────────────
+
+serviceAccount:
+  create: true
+  name: tempo
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::938822141378:role/tempo-mlops-lab
+
+# No PVC by design: WAL is emptyDir, blocks flush to S3.
+# Enabling persistence here would reintroduce the PVC teardown
+# deadlock closed in the k8s-preclean remediation.
+persistence:
+  enabled: false
+
+tempo:
+  # OTLP is the only ingest protocol we need; the chart enables
+  # several legacy ones (jaeger, zipkin) by default.
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: mlops-tempo-traces-938822141378
+        region: eu-central-1
+        # No access_key/secret_key — credentials come from IRSA
+        # via the service account annotation above.
+
+  retention: 168h
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
